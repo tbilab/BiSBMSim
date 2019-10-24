@@ -50,7 +50,7 @@ setup_planted_pattern_model <- function(planted_patterns, num_noise_nodes = 10, 
   b_b <- c(1:N_planted, rep(N_planted + 1, times = num_noise_nodes))
 
   # Build out a uniform lambda chunk of these noise nodes connection probs
-  noise_patterns <- tibble(
+  noise_patterns <- dplyr::tibble(
     a = 1:K_a,
     b = paste0("b", N_planted + 1),
     avg_num_cons = noise_p
@@ -58,15 +58,15 @@ setup_planted_pattern_model <- function(planted_patterns, num_noise_nodes = 10, 
 
   # Build full lambda for planted patterns and also the noise codes for feeding into simulator
   Lambda <- planted_patterns %>%
-    select(-size) %>%
-    mutate_all(~ifelse(. == 1, planted_p_on, planted_p_off)) %>%
-    mutate(a = 1:n()) %>%
-    gather(
+    dplyr::select(-size) %>%
+    dplyr::mutate_all(~ifelse(. == 1, planted_p_on, planted_p_off)) %>%
+    dplyr::mutate(a = 1:dplyr::n()) %>%
+    tidyr::gather(
       key = "b", value = "avg_num_cons", -a
     ) %>%
-    bind_rows(noise_patterns) %>%
-    mutate(
-      b = as.integer(stringr::str_remove(b, "b"))
+    dplyr::bind_rows(noise_patterns) %>%
+    dplyr::mutate(
+      b = as.integer(gsub("b", "", b))
     )
 
   list(
