@@ -71,7 +71,7 @@ ggplot(Lambda, aes(x = a, y = b)) +
   scale_fill_gradient(low = "white", high = "#56B1F7")
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-visualizing_lambda-1.png" width="100%" />
 
 ## Now we can begin simulation
 
@@ -115,4 +115,4 @@ all_node_pairs %>%
   )
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-simulation_results-1.png" width="100%" />
