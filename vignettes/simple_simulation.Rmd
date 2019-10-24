@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-# library(bisbmsim)
+library(bisbmsim)
 
 library(tidyverse)
 library(purrr)
@@ -35,19 +35,13 @@ K_b <- 3    # How many blocks of the b type nodes are there
 
 In the future these variables will be chosen, not generated.
 ```{r}
-b_a <- rep(1:K_a, length.out = N_a) # Block membership for each a node (automated in future)
-b_b <- rep(1:K_b, length.out = N_b) # Block membership for each b node
+b_a <- assign_group_membership(N = N_a, K = K_a) # Block membership for each a node (automated in future)
+b_b <- assign_group_membership(N = N_b, K = K_b) # Block membership for each b node
 ```
 
 ### Average number of connections between each pair of a and b groups
 ```{r}
-Lambda <- expand.grid(
-  a = 1:K_a,
-  b = 1:K_b
-) %>% 
-  mutate(
-    avg_num_cons = runif(n())
-  )
+Lambda <- generate_random_lambda(K_a = K_a, K_b = K_b)
 ```
 
 
@@ -61,7 +55,6 @@ ggplot(Lambda, aes(x = a, y = b)) +
     color = 'white'
   ) +
   scale_fill_gradient(low = "white", high = "#56B1F7")
-
 ```
 
 
