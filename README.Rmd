@@ -33,6 +33,7 @@ devtools::install_github('tbilab/bisbmsim')
 library(bisbmsim)
 
 library(tidyverse)
+library(magrittr)
 library(purrr)
 ```
 
@@ -85,20 +86,48 @@ all_node_pairs %>% head()
 
 Plot results and compare with the generating lambda matrix. 
 ```{r simulation_results}
-all_node_pairs %>% 
-  mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
-  gather(key = 'type', value = 'connections', num_edges) %>% 
-  arrange(a_group, b_group) %>% 
-  ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
-  geom_tile(aes(fill = connections) ) +
-  facet_wrap(~type) +
-  scale_fill_gradient(low = "white", high = "#56B1F7") + 
-  labs(
-    x = 'a node',
-    y = 'b node'
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text = element_blank()
-  )
+plot_sim_results <- function(drawn_node_pairs){
+  drawn_node_pairs %>% 
+    mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
+    gather(key = 'type', value = 'connections', num_edges, avg_num_cons) %>% 
+    mutate(type = ifelse(type == 'num_edges', "Drawn Values", "Lambda")) %>% 
+    arrange(a_group, b_group) %>% 
+    ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
+    geom_tile(aes(fill = connections) ) +
+    facet_wrap(~type) +
+    scale_fill_gradient(low = "white", high = "#56B1F7") + 
+    labs(
+      x = 'a node',
+      y = 'b node'
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text = element_blank()
+    )
+}
+
+plot_sim_results(all_node_pairs)
+
 ```
+
+
+# Setting up planted patterns
+
+```{r planted_simulation_results}
+my_patterns <- tribble(
+  ~b1,  ~b2,  ~b3,  ~b4,  ~size,
+    1,    1,    0,    0,     10,
+    1,    1,    1,    0,     15,
+    0,    0,    0,    1,     13,
+    0,    0,    1,    1,     24
+)
+
+planted_model_params <- setup_planted_pattern_model(my_patterns, num_noise_nodes = 15)
+
+draw_from_planted <- planted_model_params %$%
+  draw_from_model(b_a, b_b, Lambda)
+
+plot_sim_results(draw_from_planted)
+```
+
+
