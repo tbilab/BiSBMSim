@@ -78,30 +78,16 @@ ggplot(Lambda, aes(x = a, y = b)) +
 ## Now we can begin simulation
 
 ```{r}
-all_node_pairs <- expand.grid(
-  a = 1:N_a,
-  b = 1:N_b
-) %>% 
-  # Grab the group membership for each node
-  mutate(
-    a_group = b_a[a],
-    b_group = b_b[b]
-  ) %>% 
-  inner_join(
-    Lambda,
-    by = c('a_group' = 'a', 'b_group' = 'b')
-  ) %>% 
-  mutate(
-    num_connections = rpois(n(), lambda = avg_num_cons)
-  )
+all_node_pairs <- draw_from_model(b_a, b_b, Lambda)
+all_node_pairs %>% head()
 ```
 
 
 Plot results and compare with the generating lambda matrix. 
 ```{r simulation_results}
 all_node_pairs %>% 
-  mutate(num_connections = ifelse(num_connections >= 1, 1, 0)) %>% 
-  gather(key = 'type', value = 'connections', avg_num_cons, num_connections) %>% 
+  mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
+  gather(key = 'type', value = 'connections', num_edges) %>% 
   arrange(a_group, b_group) %>% 
   ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
   geom_tile(aes(fill = connections) ) +
