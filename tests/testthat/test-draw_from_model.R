@@ -16,7 +16,6 @@ all_node_pairs <- draw_from_model(
   Lambda = Lambda
 )
 
-
 test_that("Group pairs have approximately the correct average number of connections", {
   drawn_group_pair_avgs <- all_node_pairs %>%
     group_by(a_group, b_group) %>%

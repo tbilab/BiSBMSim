@@ -107,7 +107,6 @@ plot_sim_results <- function(drawn_node_pairs){
 }
 
 plot_sim_results(all_node_pairs)
-
 ```
 
 

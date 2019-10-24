@@ -30,6 +30,15 @@ library(tidyverse)
 #> ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 #> ✖ dplyr::filter() masks stats::filter()
 #> ✖ dplyr::lag()    masks stats::lag()
+library(magrittr)
+#> 
+#> Attaching package: 'magrittr'
+#> The following object is masked from 'package:purrr':
+#> 
+#>     set_names
+#> The following object is masked from 'package:tidyr':
+#> 
+#>     extract
 library(purrr)
 ```
 
@@ -78,36 +87,62 @@ ggplot(Lambda, aes(x = a, y = b)) +
 ``` r
 all_node_pairs <- draw_from_model(b_a, b_b, Lambda)
 all_node_pairs %>% head()
-#> # A tibble: 6 x 5
-#>       a     b a_group b_group num_edges
-#>   <int> <int>   <int>   <int>     <int>
-#> 1     1     1       1       1         0
-#> 2     2     1       2       1         0
-#> 3     3     1       3       1         1
-#> 4     4     1       4       1         0
-#> 5     5     1       1       1         0
-#> 6     6     1       2       1         0
+#> # A tibble: 6 x 6
+#>       a     b a_group b_group avg_num_cons num_edges
+#>   <int> <int>   <int>   <int>        <dbl>     <int>
+#> 1     1     1       1       1        0.564         0
+#> 2     2     1       2       1        0.592         1
+#> 3     3     1       3       1        0.250         0
+#> 4     4     1       4       1        0.780         1
+#> 5     5     1       1       1        0.564         0
+#> 6     6     1       2       1        0.592         0
 ```
 
 Plot results and compare with the generating lambda matrix.
 
 ``` r
-all_node_pairs %>% 
-  mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
-  gather(key = 'type', value = 'connections', num_edges) %>% 
-  arrange(a_group, b_group) %>% 
-  ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
-  geom_tile(aes(fill = connections) ) +
-  facet_wrap(~type) +
-  scale_fill_gradient(low = "white", high = "#56B1F7") + 
-  labs(
-    x = 'a node',
-    y = 'b node'
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text = element_blank()
-  )
+plot_sim_results <- function(drawn_node_pairs){
+  drawn_node_pairs %>% 
+    mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
+    gather(key = 'type', value = 'connections', num_edges, avg_num_cons) %>% 
+    mutate(type = ifelse(type == 'num_edges', "Drawn Values", "Lambda")) %>% 
+    arrange(a_group, b_group) %>% 
+    ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
+    geom_tile(aes(fill = connections) ) +
+    facet_wrap(~type) +
+    scale_fill_gradient(low = "white", high = "#56B1F7") + 
+    labs(
+      x = 'a node',
+      y = 'b node'
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text = element_blank()
+    )
+}
+
+plot_sim_results(all_node_pairs)
 ```
 
 <img src="man/figures/README-simulation_results-1.png" width="100%" />
+
+# Setting up planted patterns
+
+``` r
+my_patterns <- tribble(
+  ~b1,  ~b2,  ~b3,  ~b4,  ~size,
+    1,    1,    0,    0,     10,
+    1,    1,    1,    0,     15,
+    0,    0,    0,    1,     13,
+    0,    0,    1,    1,     24
+)
+
+planted_model_params <- setup_planted_pattern_model(my_patterns, num_noise_nodes = 15)
+
+draw_from_planted <- planted_model_params %$%
+  draw_from_model(b_a, b_b, Lambda)
+
+plot_sim_results(draw_from_planted)
+```
+
+<img src="man/figures/README-planted_simulation_results-1.png" width="100%" />
