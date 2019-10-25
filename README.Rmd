@@ -96,6 +96,7 @@ plot_sim_results <- function(drawn_node_pairs){
     geom_tile(aes(fill = connections) ) +
     facet_wrap(~type) +
     scale_fill_gradient(low = "white", high = "#56B1F7") + 
+    guides(fill = FALSE) +
     labs(
       x = 'a node',
       y = 'b node'
@@ -121,12 +122,37 @@ my_patterns <- tribble(
     0,    0,    1,    1,     24
 )
 
-planted_model_params <- setup_planted_pattern_model(my_patterns, num_noise_nodes = 15)
+planted_model_params <- setup_planted_pattern_model(my_patterns, num_noise_nodes = 10)
 
 draw_from_planted <- planted_model_params %$%
   draw_from_model(b_a, b_b, Lambda)
 
 plot_sim_results(draw_from_planted)
+```
+
+# Lets actually draw a bunch of samples from this same pattern setup
+
+```{r multiple_simulation_draws}
+num_draws <- 25
+
+all_draws <- 1:num_draws %>% 
+  purrr::map_dfr(function(draw_num){
+    planted_model_params %$%
+      draw_from_model(b_a, b_b, Lambda) %>% 
+      mutate(draw = draw_num)
+  })
+
+all_draws %>% 
+  mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
+  arrange(a_group, b_group) %>% 
+  ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
+    geom_tile(aes(fill = num_edges) ) +
+    scale_fill_gradient(low = "white", high = "#56B1F7") + 
+    guides(fill = FALSE) +
+    labs(x = 'a node', y = 'b node' ) +
+    facet_wrap(~draw) +
+    theme_minimal() +
+    theme(axis.text = element_blank())
 ```
 
 
