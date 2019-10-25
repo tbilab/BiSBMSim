@@ -122,7 +122,13 @@ my_patterns <- tribble(
     0,    0,    1,    1,     24
 )
 
-planted_model_params <- setup_planted_pattern_model(my_patterns, num_noise_nodes = 10)
+planted_model_params <- setup_planted_pattern_model(
+  my_patterns, 
+  num_noise_nodes = 10,
+  noise_p = 0.03,
+  planted_p_on = 2,
+  planted_p_off = 0.01
+)
 
 draw_from_planted <- planted_model_params %$%
   draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes")
