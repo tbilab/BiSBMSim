@@ -20,25 +20,8 @@ devtools::install_github('tbilab/bisbmsim')
 
 ``` r
 library(bisbmsim)
-
 library(tidyverse)
-#> ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
-#> ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
-#> ✔ tibble  2.1.3     ✔ dplyr   0.8.3
-#> ✔ tidyr   0.8.3     ✔ stringr 1.4.0
-#> ✔ readr   1.3.1     ✔ forcats 0.4.0
-#> ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-#> ✖ dplyr::filter() masks stats::filter()
-#> ✖ dplyr::lag()    masks stats::lag()
 library(magrittr)
-#> 
-#> Attaching package: 'magrittr'
-#> The following object is masked from 'package:purrr':
-#> 
-#>     set_names
-#> The following object is masked from 'package:tidyr':
-#> 
-#>     extract
 library(purrr)
 ```
 
@@ -85,17 +68,17 @@ ggplot(Lambda, aes(x = a, y = b)) +
 ## Now we can begin simulation
 
 ``` r
-all_node_pairs <- draw_from_model(b_a, b_b, Lambda)
+all_node_pairs <- draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes")
 all_node_pairs %>% head()
 #> # A tibble: 6 x 6
-#>       a     b a_group b_group avg_num_cons num_edges
-#>   <int> <int>   <int>   <int>        <dbl>     <int>
-#> 1     1     1       1       1       0.894          1
-#> 2     2     1       2       1       0.899          1
-#> 3     3     1       3       1       0.426          0
-#> 4     4     1       4       1       0.0535         0
-#> 5     5     1       1       1       0.894          0
-#> 6     6     1       2       1       0.899          0
+#>   Subjects Phecodes a_group b_group avg_num_cons num_edges
+#>      <int>    <int>   <int>   <int>        <dbl>     <int>
+#> 1        1        1       1       1        0.333         0
+#> 2        2        1       2       1        0.621         0
+#> 3        3        1       3       1        0.128         0
+#> 4        4        1       4       1        0.328         1
+#> 5        5        1       1       1        0.333         0
+#> 6        6        1       2       1        0.621         0
 ```
 
 Plot results and compare with the generating lambda matrix.
@@ -107,15 +90,12 @@ plot_sim_results <- function(drawn_node_pairs){
     gather(key = 'type', value = 'connections', num_edges, avg_num_cons) %>% 
     mutate(type = ifelse(type == 'num_edges', "Drawn Values", "Lambda")) %>% 
     arrange(a_group, b_group) %>% 
-    ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
+    ggplot(aes(x = reorder(Subjects, a_group), y = reorder(Phecodes, b_group))) +
     geom_tile(aes(fill = connections) ) +
     facet_wrap(~type) +
     scale_fill_gradient(low = "white", high = "#56B1F7") + 
     guides(fill = FALSE) +
-    labs(
-      x = 'a node',
-      y = 'b node'
-    ) +
+    labs(x = 'Subjects', y = 'Phecodes') +
     theme_minimal() +
     theme(
       axis.text = element_blank()
@@ -141,7 +121,7 @@ my_patterns <- tribble(
 planted_model_params <- setup_planted_pattern_model(my_patterns, num_noise_nodes = 10)
 
 draw_from_planted <- planted_model_params %$%
-  draw_from_model(b_a, b_b, Lambda)
+  draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes")
 
 plot_sim_results(draw_from_planted)
 ```
@@ -156,18 +136,18 @@ num_draws <- 25
 all_draws <- 1:num_draws %>% 
   purrr::map_dfr(function(draw_num){
     planted_model_params %$%
-      draw_from_model(b_a, b_b, Lambda) %>% 
+      draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes") %>% 
       mutate(draw = draw_num)
   })
 
 all_draws %>% 
   mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
   arrange(a_group, b_group) %>% 
-  ggplot(aes(x = reorder(a, a_group), y = reorder(b, b_group))) +
+  ggplot(aes(x = reorder(Subjects, a_group), y = reorder(Phecodes, b_group))) +
     geom_tile(aes(fill = num_edges) ) +
     scale_fill_gradient(low = "white", high = "#56B1F7") + 
     guides(fill = FALSE) +
-    labs(x = 'a node', y = 'b node' ) +
+    labs(x = 'Subjects', y = 'Phecodes') +
     facet_wrap(~draw) +
     theme_minimal() +
     theme(axis.text = element_blank())
