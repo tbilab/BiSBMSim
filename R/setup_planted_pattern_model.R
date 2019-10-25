@@ -32,6 +32,36 @@
 #' setup_planted_pattern_model(my_patterns, num_noise_nodes = 15)
 #'
 setup_planted_pattern_model <- function(planted_patterns, num_noise_nodes = 10, noise_p = 0.2, planted_p_on = 0.95, planted_p_off = 0.05){
+  # Tests to make sure provided patterns tibble is in right format
+
+  # Test if size column present
+  missing_size_col <- !('size' %in% colnames(planted_patterns))
+  if(missing_size_col){
+    stop("Requested patterns dataframe is missing size column.")
+  }
+
+  # Test for redundent patterns
+  all_patterns <- planted_patterns %>%
+    select(-size) %>%
+    tidyr::unite('pattern') %>%
+    pull('pattern')
+
+  has_non_unique_patterns <- length(all_patterns) != length(unique(all_patterns))
+  if(has_non_unique_patterns){
+    stop("Two or more requested patterns are the same.")
+  }
+
+  # Make sure sizes are positive integers
+  requested_sizes <- planted_patterns$size
+
+  not_positive <- requested_sizes <= 0
+  not_integer  <- requested_sizes %% 1 != 0
+  non_valid_size <- not_positive | not_integer
+
+  if(any(non_valid_size)){
+    bad_sizes <- requested_sizes[which(non_valid_size)]
+    stop(paste("Requested pattern size(s) of", paste(bad_sizes, collapse = ", "),"not valid."))
+  }
 
   # Total number of nodes of type a
   N_a <- sum(planted_patterns$size)
