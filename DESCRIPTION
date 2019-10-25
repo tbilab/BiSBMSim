@@ -1,14 +1,13 @@
 Package: bisbmsim
-Title: What the Package Does (One Line, Title Case)
+Title: Simulate Data From Bipartite Stochastic Block Model
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Nick",
+           family = "Strayer",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+           email = "nick.strayer@gmail.com")
+Description: Series of functions to generate data from bipartite stochastic block model with various assumptions.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
@@ -20,4 +19,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Imports: 
     magrittr,
-    dplyr
+    dplyr,
+    rlang
