@@ -11,6 +11,8 @@
 #' @param Lambda Tibble containing average number of connections for each unique
 #'   pair of a and b node groups. See \code{\link{generate_random_lambda()}} for
 #'   more details.
+#' @param a_name Name for the type a nodes in the output.
+#' @param b_name Name for the type b nodes in the output.
 #'
 #' @return A tibble with colums for ids of each node pair (`a, b`), the groups
 #'   those node are in (`a_group, b_group`), (`avg_num_cons`) for the expected
@@ -19,7 +21,7 @@
 #' @export
 #'
 #' @examples
-draw_from_model <- function(b_a, b_b, Lambda){
+draw_from_model <- function(b_a, b_b, Lambda, a_name = "a", b_name = "b"){
 
   node_pairs <- expand.grid(
     a = 1:length(b_a),
@@ -40,5 +42,9 @@ draw_from_model <- function(b_a, b_b, Lambda){
 
   # Draw from Poison distribution with given average for each pair
   node_pairs$num_edges <- rpois(n_pairs, lambda = node_pairs$avg_num_cons)
-  as_tibble(node_pairs)
+  as_tibble(node_pairs) %>%
+    rename(
+      !!rlang::sym(a_name) := a,
+      !!rlang::sym(b_name) := b
+    )
 }

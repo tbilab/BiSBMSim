@@ -28,3 +28,21 @@ test_that("Group pairs have approximately the correct average number of connecti
     tolerance = 0.05
   )
 })
+
+test_that("Custom node names are respected", {
+  model_draw <- draw_from_model(
+    b_a    = a_node_groups,
+    b_b    = b_node_groups,
+    Lambda = Lambda,
+    a_name = "my_a_node",
+    b_name = "my_b_node"
+  )
+
+  expect_equal(
+    colnames(model_draw)[1], "my_a_node"
+  )
+
+  expect_equal(
+    colnames(model_draw)[2], "my_b_node"
+  )
+})
