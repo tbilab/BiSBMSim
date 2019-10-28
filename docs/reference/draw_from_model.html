@@ -127,7 +127,8 @@ returns that data as a datafrom of each pair and the total number of
 connection seen for that pair.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>draw_from_model</span>(<span class='no'>b_a</span>, <span class='no'>b_b</span>, <span class='no'>Lambda</span>, <span class='kw'>a_name</span> <span class='kw'>=</span> <span class='st'>"a"</span>, <span class='kw'>b_name</span> <span class='kw'>=</span> <span class='st'>"b"</span>)</pre>
+    <pre class="usage"><span class='fu'>draw_from_model</span>(<span class='no'>b_a</span>, <span class='no'>b_b</span>, <span class='no'>Lambda</span>, <span class='kw'>binary_connections</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>a_name</span> <span class='kw'>=</span> <span class='st'>"a"</span>, <span class='kw'>b_name</span> <span class='kw'>=</span> <span class='st'>"b"</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,6 +147,13 @@ connection seen for that pair.</p>
       <td><p>Tibble containing average number of connections for each unique
 pair of a and b node groups. See <code><a href='generate_random_lambda.html'>generate_random_lambda()</a></code> for
 more details.</p></td>
+    </tr>
+    <tr>
+      <th>binary_connections</th>
+      <td><p>Is data simple a yes or no connection? If <code>FALSE</code>,
+function defaults to treating <code>Lambda</code> matrix values as mean for Poisson
+distribution, otherwise <code>Lambda</code> values are interpreted as the probability
+of connection using a bernouli distribution. Defaults to <code>FALSE</code>.</p></td>
     </tr>
     <tr>
       <th>a_name</th>
