@@ -1,6 +1,3 @@
-context("Group membership assignment")
-
-
 has_all_groups <- function(N, K, place_randomly, ensure_all_groups_seen){
   num_unique_memberships <- assign_group_membership(N, K, place_randomly = place_randomly, ensure_all_groups_seen = ensure_all_groups_seen) %>%
     unique() %>%
@@ -9,9 +6,6 @@ has_all_groups <- function(N, K, place_randomly, ensure_all_groups_seen){
   num_unique_memberships == K
 }
 
-#' assign_group_membership(10, 3)
-#' assign_group_membership(10, 4, place_randomly = TRUE)
-#' assign_group_membership(10, 4, place_randomly = TRUE, ensure_all_groups_seen = FALSE)
 test_that("Correct number of memberships are returned", {
   N <- 15
   K <- 5

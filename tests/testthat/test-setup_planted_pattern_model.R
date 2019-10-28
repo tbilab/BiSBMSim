@@ -1,7 +1,5 @@
 library(dplyr)
 
-context("Planted pattern model generation")
-
 test_that("Lambda is the right size", {
   model_specs <- tribble(
     ~b1,  ~b2,  ~b3,  ~b4,  ~size,
@@ -95,9 +93,9 @@ test_that("Makes sure sizes are reasonable", {
       1,    1,    0,    0,     12.3,
       0,    0,    0,    1,     13
     ) %>%
-      setup_planted_pattern_model()
-    # ,
-    # "Requested pattern size(s) of -1, 12.3 not valid."
+      setup_planted_pattern_model(),
+    "Requested pattern size(s) of -1, 12.3 not valid.",
+    fixed = TRUE
   )
 })
 
