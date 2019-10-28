@@ -46,3 +46,23 @@ test_that("Custom node names are respected", {
     colnames(model_draw)[2], "my_b_node"
   )
 })
+
+test_that("When in binary_connection mode no lambda values over 1 are accepted.", {
+  big_lambda_generator <- function(n){
+    runif(n, min = 1, max = 10)
+  }
+
+  bad_lambda <- generate_random_lambda(K_a = K_a, K_b = K_b, random_generator = big_lambda_generator)
+
+  expect_error(
+    draw_from_model(
+      b_a    = a_node_groups,
+      b_b    = b_node_groups,
+      Lambda = bad_lambda,
+      binary_connections = TRUE
+    ),
+    "In binary connection mode you can't have a lambda greater than one. Either adjust your Lambdas or set binary_connection = FALSE.",
+    fixed = TRUE
+  )
+
+})

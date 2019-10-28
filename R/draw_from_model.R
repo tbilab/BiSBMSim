@@ -11,6 +11,10 @@
 #' @param Lambda Tibble containing average number of connections for each unique
 #'   pair of a and b node groups. See \code{\link{generate_random_lambda()}} for
 #'   more details.
+#' @param binary_connections Is data simple a yes or no connection? If `FALSE`,
+#'   function defaults to treating `Lambda` matrix values as mean for Poisson
+#'   distribution, otherwise `Lambda` values are interpreted as the probability
+#'   of connection using a bernouli distribution. Defaults to `FALSE`.
 #' @param a_name Name for the type a nodes in the output.
 #' @param b_name Name for the type b nodes in the output.
 #'
@@ -21,7 +25,13 @@
 #' @export
 #'
 #' @examples
-draw_from_model <- function(b_a, b_b, Lambda, a_name = "a", b_name = "b"){
+draw_from_model <- function(b_a, b_b, Lambda, binary_connections = FALSE, a_name = "a", b_name = "b"){
+  # If were in a binary mode then make sure none of our lambda values are greater than 1.
+  if(binary_connections){
+    if(any(Lambda$avg_num_cons > 1)){
+      stop("In binary connection mode you can't have a lambda greater than one. Either adjust your Lambdas or set binary_connection = FALSE.")
+    }
+  }
 
   node_pairs <- expand.grid(
     a = 1:length(b_a),
