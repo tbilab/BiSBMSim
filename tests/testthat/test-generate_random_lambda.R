@@ -1,5 +1,3 @@
-context("Generating random Lambda matrices")
-
 test_that("Returns a tibble of the right size", {
   K_a <- 5
   K_b <- 4
