@@ -25,7 +25,6 @@ library(purrr)
 
 This package simulates data using the bipartite stochastic block model (BiSbm). 
 
-
 ## Installation
 
 You can install the unrelased version of bisbmsim from github with:
@@ -42,7 +41,7 @@ library(purrr)
 ```
 
 
-## Example
+# Example
 
 Super simple simulation. 
 
@@ -54,19 +53,32 @@ K_a <- 4    # How many blocks of a type nodes are there
 K_b <- 3    # How many blocks of the b type nodes are there
 ```
 
-In the future these variables will be chosen, not generated.
+
+## Inputs Needed
+
+The Stochastic Block Model is defined by two main inputs. 
+
+### Group Membership Vectors
+
+The group membership vectors are vectors of length `N_a` for a-nodes and `N_b` for b-nodes. Each element in these vectors is the integer ID of the group that node belongs to.
+
+`assign_group_membership` is a function that will build these membership vectors for you when supplied with size and group numbers. By default they evenly space the groups across the nodes but by using the option `place_randomly = TRUE` you can also stochastically assign group membership.  
+
 ```{r}
-b_a <- assign_group_membership(N = N_a, K = K_a) # Block membership for each a node (automated in future)
+b_a <- assign_group_membership(N = N_a, K = K_a) # Block membership for each a node
 b_b <- assign_group_membership(N = N_b, K = K_b) # Block membership for each b node
 ```
 
-### Average number of connections between each pair of a and b groups
+
+### The Lambda matrix
+
+The Lambda matrix (or tidy dataframe in this case) tells the model the _average number of connections between each pair of a and b groups_. In the case of the standard Poisson SBM this means that if the model is determining the number of edges between a node in group `i` and a node in group `j`, it does so by drawing from a Poisson distribution with the mean (or lambda) value of `Lambda(i,j)`. 
+
 ```{r}
 Lambda <- generate_random_lambda(K_a = K_a, K_b = K_b)
 ```
 
-
-Look at what our Lambda looks like real quick.
+Here's what this Lambda looks like.
 
 ```{r visualizing_lambda}
 ggplot(Lambda, aes(x = a, y = b)) +
@@ -78,42 +90,73 @@ ggplot(Lambda, aes(x = a, y = b)) +
 ```
 
 
-## Now we can begin simulation
+The `generate_random_lambda()` function by default builds a lambda between `K_a` a-type groups and `K_b` b-type groups by drawing from a random uniform distribution. You can change the model that generates the values by passing the `random_generator` option a function that takes an input `n` and returns `n` values. 
+
+For instance, here's a Lambda where the individual values are drawn from a beta distribution. 
+
+```{r}
+drawn_n_betas <- function(n) {
+  rbeta(n, shape1 = 2, shape2 = 2)
+}
+
+generate_random_lambda(K_a = K_a, K_b = K_b, random_generator = drawn_n_betas)
+```
+
+
+## Drawing simulated data from a model
+
+Now that we have defined the two main inputs needed for determining an SBM, the group membership vectors and the Lambda matrix, we can proceed to actually drawing from the SBM model. 
+
+_Note that we have provided names for the different node types with the `a_name` and `b_name` arguments._
 
 ```{r}
 all_node_pairs <- draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes")
 all_node_pairs %>% head()
 ```
 
+We can compare this now with the true underlying generation parameters....
 
-Plot results and compare with the generating lambda matrix. 
 ```{r simulation_results}
 plot_sim_results <- function(drawn_node_pairs){
   drawn_node_pairs %>% 
-    mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
     gather(key = 'type', value = 'connections', num_edges, avg_num_cons) %>% 
     mutate(type = ifelse(type == 'num_edges', "Drawn Values", "Lambda")) %>% 
     arrange(a_group, b_group) %>% 
-    ggplot(aes(x = reorder(Subjects, a_group), y = reorder(Phecodes, b_group))) +
-    geom_tile(aes(fill = connections) ) +
+    ggplot(aes(y = reorder(Subjects, a_group), x = reorder(Phecodes, b_group))) +
+    geom_tile(aes(fill = connections), color = "white") +
     facet_wrap(~type) +
     scale_fill_gradient(low = "white", high = "#56B1F7") + 
-    guides(fill = FALSE) +
-    labs(x = 'Subjects', y = 'Phecodes') +
     theme_minimal() +
-    theme(
-      axis.text = element_blank()
-    )
+    theme(axis.text = element_blank()) +
+    labs(y = 'Subjects', x = 'Phecodes') 
 }
 
 plot_sim_results(all_node_pairs)
 ```
 
 
+### Binary Mode
 
-# Setting up planted patterns
+If only binary connected, not-connected results are desired, there is an option `binary_connections` in `draw_from_model()` that uses the bernouli distribution to decide if each edge exists or not, rather than the standard Poisson. 
 
-```{r planted_simulation_results}
+```{r binary_simulation_results}
+draw_from_model(
+  b_a = b_a, 
+  b_b = b_b, 
+  Lambda = Lambda, 
+  binary_connections = TRUE,
+  a_name = "Subjects", 
+  b_name = "Phecodes" 
+) %>% 
+  plot_sim_results()
+```
+
+
+## Setting up planted patterns
+
+If more control over the model setup is desired, the function `setup_planted_pattern_model` allows specification of a full model allowing you to specify patterns of b-nodes that characterize groups of a-nodes. 
+
+```{r}
 my_patterns <- tribble(
   ~b1,  ~b2,  ~b3,  ~b4,  ~size,
     1,    1,    0,    0,     10,
@@ -126,36 +169,47 @@ planted_model_params <- setup_planted_pattern_model(
   my_patterns, 
   num_noise_nodes = 10,
   noise_p = 0.03,
-  planted_p_on = 2,
+  planted_p_on = 0.95,
   planted_p_off = 0.01
 )
+planted_model_params
+```
 
+The function returns a list with the three needed inputs for `draw_from_model()`
+
+```{r planted_simulation_results}
 draw_from_planted <- planted_model_params %$%
-  draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes")
+  draw_from_model(
+    b_a, b_b, Lambda, 
+    binary_connections = TRUE, 
+    a_name = "Subjects", 
+    b_name = "Phecodes" )
 
 plot_sim_results(draw_from_planted)
 ```
 
-# Lets actually draw a bunch of samples from this same pattern setup
+
+## Running lots of simulations
+
+Once you have your SBM inputs setup all you need to do is loop for as many simulations as you want and call `draw_from_model()` each time to get new draws. 
 
 ```{r multiple_simulation_draws}
-num_draws <- 25
+num_draws <- 36
 
 all_draws <- 1:num_draws %>% 
   purrr::map_dfr(function(draw_num){
     planted_model_params %$%
-      draw_from_model(b_a, b_b, Lambda, a_name = "Subjects", b_name = "Phecodes") %>% 
+      draw_from_model(b_a, b_b, Lambda, binary_connections = TRUE, a_name = "Subjects", b_name = "Phecodes") %>% 
       mutate(draw = draw_num)
   })
 
 all_draws %>% 
-  mutate(num_edges = ifelse(num_edges >= 1, 1, 0)) %>% 
   arrange(a_group, b_group) %>% 
-  ggplot(aes(x = reorder(Subjects, a_group), y = reorder(Phecodes, b_group))) +
-    geom_tile(aes(fill = num_edges) ) +
+  ggplot(aes(y = reorder(Subjects, a_group), x = reorder(Phecodes, b_group))) +
+    geom_tile(aes(fill = num_edges), color = "white") +
     scale_fill_gradient(low = "white", high = "#56B1F7") + 
+    labs(y = 'Subjects', x = 'Phecodes') +
     guides(fill = FALSE) +
-    labs(x = 'Subjects', y = 'Phecodes') +
     facet_wrap(~draw) +
     theme_minimal() +
     theme(axis.text = element_blank())

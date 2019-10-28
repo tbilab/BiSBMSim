@@ -4,7 +4,8 @@
 \alias{draw_from_model}
 \title{Draw data from model}
 \usage{
-draw_from_model(b_a, b_b, Lambda, a_name = "a", b_name = "b")
+draw_from_model(b_a, b_b, Lambda, binary_connections = FALSE,
+  a_name = "a", b_name = "b")
 }
 \arguments{
 \item{b_a}{Group membership vector for the a nodes. See
@@ -15,6 +16,11 @@ draw_from_model(b_a, b_b, Lambda, a_name = "a", b_name = "b")
 \item{Lambda}{Tibble containing average number of connections for each unique
 pair of a and b node groups. See \code{\link{generate_random_lambda()}} for
 more details.}
+
+\item{binary_connections}{Is data simple a yes or no connection? If \code{FALSE},
+function defaults to treating \code{Lambda} matrix values as mean for Poisson
+distribution, otherwise \code{Lambda} values are interpreted as the probability
+of connection using a bernouli distribution. Defaults to \code{FALSE}.}
 
 \item{a_name}{Name for the type a nodes in the output.}
 
