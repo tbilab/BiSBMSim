@@ -1,3 +1,9 @@
+# Build docs
+devtools::document()
+
+# Make sure all tests are passing
+devtools::test(stop_on_failure = TRUE)
+
 # Build site
 pkgdown::build_site(preview = FALSE)
 
