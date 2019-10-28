@@ -33,6 +33,12 @@ You can install the unrelased version of bisbmsim from github with:
 devtools::install_github('tbilab/bisbmsim')
 ```
 
+If you want to install a non-changing version of this package, pin to the latest release.
+
+``` r
+devtools::install_github('tbilab/BiSBMSim', ref = 'v0.10')
+```
+
 ```{r, eval = FALSE}
 library(bisbmsim)
 library(tidyverse)

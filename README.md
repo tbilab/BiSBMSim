@@ -18,6 +18,13 @@ You can install the unrelased version of bisbmsim from github with:
 devtools::install_github('tbilab/bisbmsim')
 ```
 
+If you want to install a non-changing version of this package, pin to
+the latest release.
+
+``` r
+devtools::install_github('tbilab/BiSBMSim', ref = 'v0.10')
+```
+
 ``` r
 library(bisbmsim)
 library(tidyverse)
@@ -55,7 +62,7 @@ they evenly space the groups across the nodes but by using the option
 membership.
 
 ``` r
-b_a <- assign_group_membership(N = N_a, K = K_a) # Block membership for each a node (automated in future)
+b_a <- assign_group_membership(N = N_a, K = K_a) # Block membership for each a node
 b_b <- assign_group_membership(N = N_b, K = K_b) # Block membership for each b node
 ```
 
@@ -101,18 +108,18 @@ drawn_n_betas <- function(n) {
 
 generate_random_lambda(K_a = K_a, K_b = K_b, random_generator = drawn_n_betas)
 #>    a b avg_num_cons
-#> 1  1 1   0.56297716
-#> 2  2 1   0.28096712
-#> 3  3 1   0.95683707
-#> 4  4 1   0.46303407
-#> 5  1 2   0.56111951
-#> 6  2 2   0.64230214
-#> 7  3 2   0.05145445
-#> 8  4 2   0.39709013
-#> 9  1 3   0.24976643
-#> 10 2 3   0.84605000
-#> 11 3 3   0.67108948
-#> 12 4 3   0.51824959
+#> 1  1 1   0.74878219
+#> 2  2 1   0.03877181
+#> 3  3 1   0.69267063
+#> 4  4 1   0.60364815
+#> 5  1 2   0.31644165
+#> 6  2 2   0.55183415
+#> 7  3 2   0.61135893
+#> 8  4 2   0.16986558
+#> 9  1 3   0.23948770
+#> 10 2 3   0.46559814
+#> 11 3 3   0.90508306
+#> 12 4 3   0.58878403
 ```
 
 ## Drawing simulated data from a model
@@ -131,12 +138,12 @@ all_node_pairs %>% head()
 #> # A tibble: 6 x 6
 #>   Subjects Phecodes a_group b_group avg_num_cons num_edges
 #>      <int>    <int>   <int>   <int>        <dbl>     <int>
-#> 1        1        1       1       1        0.847         1
-#> 2        2        1       2       1        0.414         0
-#> 3        3        1       3       1        0.175         0
-#> 4        4        1       4       1        0.938         0
-#> 5        5        1       1       1        0.847         2
-#> 6        6        1       2       1        0.414         0
+#> 1        1        1       1       1        0.393         0
+#> 2        2        1       2       1        0.593         1
+#> 3        3        1       3       1        0.877         1
+#> 4        4        1       4       1        0.627         0
+#> 5        5        1       1       1        0.393         1
+#> 6        6        1       2       1        0.593         1
 ```
 
 We can compare this now with the true underlying generation parameters….
