@@ -25,6 +25,17 @@
 #' @export
 #'
 #' @examples
+#' N_a <- 15  # Number of nodes of the a type
+#' N_b <- 10  # Number of nodes of the b type
+#' K_a <- 4    # How many blocks of a type nodes are there
+#' K_b <- 3    # How many blocks of the b type nodes are there
+#'
+#' draw_from_model(
+#'   assign_group_membership(N = N_a, K = K_a),
+#'   assign_group_membership(N = N_b, K = K_b),
+#'   Lambda = generate_random_lambda(K_a = K_a, K_b = K_b)
+#' )
+#'
 draw_from_model <- function(b_a, b_b, Lambda, binary_connections = FALSE, a_name = "a", b_name = "b"){
   # If were in a binary mode then make sure none of our lambda values are greater than 1.
   if(binary_connections){
@@ -64,8 +75,8 @@ draw_from_model <- function(b_a, b_b, Lambda, binary_connections = FALSE, a_name
     node_pairs$num_edges <- rpois(n = n_pairs, lambda = node_pairs$avg_num_cons)
   }
 
-  as_tibble(node_pairs) %>%
-    rename(
+  dplyr::as_tibble(node_pairs) %>%
+    dplyr::rename(
       !!rlang::sym(a_name) := a,
       !!rlang::sym(b_name) := b
     )

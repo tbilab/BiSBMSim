@@ -22,7 +22,7 @@
 #' @export
 #'
 #' @examples
-#' my_patterns <- tribble(
+#' my_patterns <- dplyr::tribble(
 #'   ~b1,  ~b2,  ~b3,  ~b4,  ~size,
 #'     1,    1,    0,    0,     10,
 #'     1,    1,    1,    0,     15,
@@ -42,9 +42,9 @@ setup_planted_pattern_model <- function(planted_patterns, num_noise_nodes = 10, 
 
   # Test for redundent patterns
   all_patterns <- planted_patterns %>%
-    select(-size) %>%
+    dplyr::select(-size) %>%
     tidyr::unite('pattern') %>%
-    pull('pattern')
+    dplyr::pull('pattern')
 
   has_non_unique_patterns <- length(all_patterns) != length(unique(all_patterns))
   if(has_non_unique_patterns){
