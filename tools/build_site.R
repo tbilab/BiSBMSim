@@ -5,7 +5,7 @@ devtools::document()
 devtools::test(stop_on_failure = TRUE)
 
 # Build site
-pkgdown::build_site(preview = FALSE)
+pkgdown::build_site()
 
 # Deploy package site to RStudio connect
 site_loc <- here::here('docs/')
