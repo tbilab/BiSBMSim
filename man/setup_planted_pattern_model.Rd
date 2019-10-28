@@ -35,7 +35,7 @@ neccesary components to draw from SBM model with set planted structure using
 \code{\link{draw_from_model()}}.
 }
 \examples{
-my_patterns <- tribble(
+my_patterns <- dplyr::tribble(
   ~b1,  ~b2,  ~b3,  ~b4,  ~size,
     1,    1,    0,    0,     10,
     1,    1,    1,    0,     15,

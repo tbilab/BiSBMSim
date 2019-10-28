@@ -38,3 +38,16 @@ for average group pair connections, draws data from a bipartite SBM model and
 returns that data as a datafrom of each pair and the total number of
 connection seen for that pair.
 }
+\examples{
+N_a <- 15  # Number of nodes of the a type
+N_b <- 10  # Number of nodes of the b type
+K_a <- 4    # How many blocks of a type nodes are there
+K_b <- 3    # How many blocks of the b type nodes are there
+
+draw_from_model(
+  assign_group_membership(N = N_a, K = K_a),
+  assign_group_membership(N = N_b, K = K_b),
+  Lambda = generate_random_lambda(K_a = K_a, K_b = K_b)
+)
+
+}
