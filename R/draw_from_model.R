@@ -33,6 +33,11 @@ draw_from_model <- function(b_a, b_b, Lambda, binary_connections = FALSE, a_name
     }
   }
 
+  # Check to make sure we don't have any negative lambas for whatever reason
+  if(any(Lambda$avg_num_cons < 0)){
+    stop("Lambda contains negative value.")
+  }
+
   node_pairs <- expand.grid(
     a = 1:length(b_a),
     b = 1:length(b_b)
@@ -50,8 +55,15 @@ draw_from_model <- function(b_a, b_b, Lambda, binary_connections = FALSE, a_name
     by = c('a_group' = 'a', 'b_group' = 'b')
   )
 
-  # Draw from Poison distribution with given average for each pair
-  node_pairs$num_edges <- rpois(n_pairs, lambda = node_pairs$avg_num_cons)
+  # Draw connections from desired distribution!
+  if(binary_connections){
+    # Draw connections from bernouli
+    node_pairs$num_edges <- rbinom(n = n_pairs, size = 1, prob = node_pairs$avg_num_cons)
+  } else {
+    # Draw from Poison distribution with given average for each pair
+    node_pairs$num_edges <- rpois(n = n_pairs, lambda = node_pairs$avg_num_cons)
+  }
+
   as_tibble(node_pairs) %>%
     rename(
       !!rlang::sym(a_name) := a,
